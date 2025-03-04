@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Form</title>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f1f1f1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Form container styling */
+        #attendanceForm {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Specific background colors for different sections */
+        .name-section {
+            background-color: #e0f7fa; /* Light Blue */
+        }
+
+        .status-section {
+            background-color: #c8e6c9; /* Light Green */
+        }
+
+        .timestamp-section {
+            background-color: #ffccbc; /* Light Orange */
+        }
+
+        /* Label and Input styling */
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #555;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Read-only input styling for the timestamp */
+        #timestampField {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            pointer-events: none; /* Prevent editing */
+        }
+
+        /* Responsive Design for Mobile Compatibility */
+        @media (max-width: 600px) {
+            #attendanceForm {
+                padding: 15px;
+                width: 90%;
+                max-width: none;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            input[type="text"], select, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+      
+    <form id="attendanceForm" action="https://script.google.com/macros/s/AKfycbzQ5jqTWdTS2lFYwgCYsv6X6_4U5qWhAlWP5cYFBUlASW0iXBQzd0VcQbQTwWY-j6LqwQ/exec" method="post">
+        <!-- Company Name Section -->
+        <div class="section name-section">
+            <label for="company">Company Name:</label>
+            <select id="company" name="company" required onchange="updateEmployeeDropdown()">
+                <option value="">Select Company</option>
+                <option value="HB-TP">HB-TP</option>
+                <option value="HB">HB</option>
+                <option value="HBPL">HBPL</option>
+                <option value="SEFALI">SEFALI</option>
+            </select>
+        </div>
+
+        <!-- Employee Section -->
+        <div class="section name-section">
+            <label for="employee">Employee Name:</label>
+            <select id="employee" name="employee" required>
+                <option value="">Select Employee</option>
+            </select>
+        </div>
+
+        <!-- Timestamp Section -->
+        <div class="section timestamp-section">
+            <label for="timestampField">Timestamp:</label>
+            <input type="text" id="timestampField" name="timestamp" required readonly>
+        </div>
+
+        <!-- Status Section -->
+        <div class="section status-section">
+            <label for="status">Attendance Status:</label>
+            <select id="status" name="status" required>
+                <option value="In">In</option>
+                <option value="Out">Out</option>
+            </select>
+        </div>
+
+        <!-- Hidden Timestamp -->
+        <input type="hidden" id="timestamp" name="timestamp" required>
+
+        <!-- Hidden Location -->
+        <input type="hidden" id="location" name="location" required>
+
+        <button type="submit" id="submitBtn" disabled>Submit</button>
+        <p id="locationMessage" style="color: red;">Please enable location services to submit the form.</p>
+    </form>
+
+    <script>
+        // Employee data grouped by company
+        const companyData = {
+            "HB-TP": [
+                "PROSENJIT BOSE", "PRIAM DUTTA", "MUNNA MOHANTA", "SUSMITA GUHA DAS",
+                "AMIT MONDAL", "SANCHITA PAL", "BIJAY SAMANTA"
+            ],
+            "HB": [
+                "KRISHNENDU BANERJEE", "APURBA BHATTACHARYA", "ARPON ADHIKARI", "RAJU MAL", 
+                "BISWAJIT ROY", "BARIN SAM", "GONESH MAJHI", "NOYON LET", "LAXMI CHAKRABORTY",
+                "SUKLA SARKAR", "MOHABIR JAILI", "TAROK DAS", "SHITAL RAUT", "PUCHKA SINHA",
+                "SMRITI BANIK", "RAKHI MAJHI", "SAGOR KUNDU", "RAMKRISHNA ROY", "RAHUL SAI", 
+                "JOYDEB PANDIT", "SWAPNA KURI"
+            ],
+            "HBPL": [
+                "RANA DAS", "ARDHENDU SHEKHAR ROY", "NISHITH GHOSH", "MONOJIT BORESH", 
+                "MITHU BHAKAT", "MUKTIPADA MONDAL", "BUDHADEB SAPUI", "DURGA KUMARI KHARWAR SARKAR",
+                "UTTAM MUKHERJEE", "PIKU MONDAL", "RASHMI BISWAS", "JAYANTI ROY", "SHIBANI MAHATO",
+                "SOURAV BISWAS", "SIMA DATTA", "AMOR SUTRADHAR", "SUJIT RUIDAS", "DEB BISWAS",
+                "KIRAN DAS", "RAJ PATRA", "SOMNATH DEY"
+            ],
+            "SEFALI": [
+                "BASIR AHMED MOLLICK", "BIKASH ROY", "BINOD MAJHI", "HARI ROY",
+                "NIKHILESWAR CHATTAPADHYAY", "SAUMITRA GHOSH", "BASUDEB BANERJEE", "RAKESH BAG",
+                "RUPAK KUMAR CHATTOPADHYAY", "SHRIMANTA KUMAR DAS", "SK AZIZUL HOQUE", "SOMNATH DEY",
+                "SUJIT HALDER", "UJJAL ROY", "BABU ROY", "BISHAL MONDAL", "DEBTANU SARKAR", 
+                "RAJIB DAS", "SRINJOY DAS", "ARIJIT MUKHERJEE", "SANI CHAKROBORTY", "DEEP DAS",
+                "SK ROCKY", "SK RIAZ", "TONY RAM", "SK NAYAN", "SUBHO DAS", "AKASH BAIRAGEY",
+                "SUSHANTA DAS", "MITHUN"
+            ]
+        };
+
+        // Function to update the employee dropdown based on the selected company
+        function updateEmployeeDropdown() {
+            const companySelect = document.getElementById("company");
+            const employeeSelect = document.getElementById("employee");
+
+            const selectedCompany = companySelect.value;
+            employeeSelect.innerHTML = "<option value=''>Select Employee</option>"; // Reset employee dropdown
+
+            if (selectedCompany && companyData[selectedCompany]) {
+                // Populate the employee dropdown based on selected company
+                companyData[selectedCompany].forEach(employee => {
+                    const option = document.createElement("option");
+                    option.value = employee;
+                    option.textContent = employee;
+                    employeeSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Function to update the timestamp in Indian format (DD-MM-YYYY HH:MM:SS)
+        function updateTimestamp() {
+            const timestampField = document.getElementById('timestampField');
+            const currentDate = new Date();
+            
+            // Get day, month, year, hours, minutes, seconds
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+            const year = currentDate.getFullYear();
+            const hours = String(currentDate.getHours()).padStart(2, '0');
+            const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+            const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+            
+            // Format the date and time in Indian format (DD-MM-YYYY HH:MM:SS)
+            const formattedTimestamp = `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+            
+            // Set the formatted timestamp in the input field
+            timestampField.value = formattedTimestamp;
+            document.getElementById('timestamp').value = formattedTimestamp;
+        }
+
+        // Function to fetch the user's location and populate the hidden location field
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const location = `${position.coords.latitude}, ${position.coords.longitude}`;
+                    document.getElementById('location').value = location; // Populate the hidden location field
+                    document.getElementById('locationMessage').style.display = 'none'; // Hide the message
+                    document.getElementById('submitBtn').disabled = false; // Enable the submit button
+                }, function() {
+                    document.getElementById('locationMessage').style.display = 'block'; // Show error message if location is not accessible
+                    document.getElementById('submitBtn').disabled = true; // Keep the submit button disabled
+                });
+            } else {
+                document.getElementById('locationMessage').style.display = 'block'; // Show error if geolocation is not supported
+                document.getElementById('submitBtn').disabled = true;
+            }
+        }
+
+        // Call location capture function on page load
+        window.onload = function() {
+            updateTimestamp(); // Call to update the timestamp as well
+            getLocation(); // Fetch the user's location
+        };
+    </script>
+
+</body>
+</html>
